@@ -60,8 +60,8 @@ switch ($_POST['accion']) {
      $_SESSION["bd"]=$_POST["bd"];
     echo '
     <script>                   
-        $("#bds").val("'.$_SESSION["bd"].'");
-        extrae("capaTablas");
+        $("#bds").val("'.$_SESSION["bd"].'"); 
+        extrae("capaTablas"); 
     </script>'; 
      
     break;

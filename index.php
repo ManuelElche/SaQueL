@@ -44,7 +44,9 @@ include_once("funciones.php");
                                   
           <input type="text" id="campo" class="form-control" placeholder="Buscar campos...">
           <div id="buscacampos"></div><br />
-        <input type="checkbox" style="vertical-align:text-bottom;" id="sinlimit"> Sin límite    
+        <input type="checkbox" style="vertical-align:text-bottom;" id="sinlimit"> Sin límite
+        <br />
+        USE: inmo<input type="text" id="idagencia" maxlength="4">   
     </div>         
 
                   

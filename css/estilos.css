@@ -143,8 +143,12 @@ select {
         padding: 6px 15px; 
     }  
     
-    input {
-        background-color:#cd9d8f;
+    #idagencia {
+        display:inline;
+        width:40px;
+        height:20px;
+        background-color:#f8fafb;
+        border-radius: 3px;
     }
     
     .peq {font-size:.9em;}           

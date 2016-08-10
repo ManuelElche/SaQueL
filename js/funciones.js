@@ -8,13 +8,15 @@ $(document).ready(function() {
         });
         
         $("#editor").keydown(function(event){                
-            if (event.which==120) {lanzar();}      // F9
-        //alert("El código de la tecla " + String.fromCharCode(event.which) + " es: " + event.which);
-        }); 
-               
-               
-               
-               
+            if (event.which==120) {lanzar();}      // F9                                               
+        })
+        
+        $("#idagencia").keydown(function(event){                
+            if (event.which==13 || event.which==32) { // 13=>tecla intro, 32=>tecla espacio
+            use("inmo"+$("#idagencia").val());
+            } 
+        });         
+        //alert("El código de la tecla " + String.fromCharCode(event.which) + " es: " + event.which); // para ver el c�digo
                
                                   
 $("#campo").keyup(function(event){
@@ -90,6 +92,17 @@ function lanzar() {
 }
 
 function use(bdatos) {
+var bdatos=bdatos.trim();
+window.esta=0;
+$("#bds>option").map(function() {
+var optionBD=$(this).val(); 
+    if (optionBD==bdatos)
+    window.esta++;
+}); 
+
+if (window.esta==0)
+    {alert("No existe la base de datos "+bdatos+"!"); exit();}
+
         var parametros = {
                 "accion" : "use",      
                 "bd" : bdatos

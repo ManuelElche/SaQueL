@@ -70,7 +70,7 @@ include_once("funciones.php");
 <script>
     var editor = ace.edit("editor");
     editor.setTheme("ace/theme/chrome");
-    editor.getSession().setMode("ace/mode/sql");
+    editor.getSession().setMode("ace/mode/mysql");
 </script>
 </body>
 </html>

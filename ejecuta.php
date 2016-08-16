@@ -45,13 +45,49 @@ switch ($_POST['accion']) {
     
     case "favoritos" :
      mysqli_select_db($link,"gesquery");
-     $listado = mysqli_query($link,'SELECT titulo, query FROM gesquery.favoritos WHERE user="6" ORDER BY titulo;'); 
+     $listado = mysqli_query($link,'SELECT titulo, query, id FROM gesquery.favoritos WHERE user="6" ORDER BY titulo;'); 
 
     while ($lista=mysqli_fetch_array($listado))
-        {$campos.= '<span onClick="escribeFav(this);" class="sentenciaFav">&raquo; '.utf8_encode($lista[0]).'<span class="query">'.utf8_encode($lista[1]).'</span></span><br />';}
+        {$campos.= '<div id="fav'.$lista[2].'"><span onClick="escribeFav(this);" class="sentenciaFav">&raquo; '.utf8_encode($lista[0]).'<span class="query">'.utf8_encode($lista[1]).'</span></span> <div class="delete" onClick="borrarFavorito('.$lista[2].');" title="Eliminar"></div></div>';}
                    
     echo $campos;  
     mysqli_free_result($link);
+    break; 
+    
+    
+    
+    case "addfavorito" :
+     if ($_POST["titulo"]=="" || $_POST["query"]=="" || $_SESSION["user"]=="") die();
+     
+     if(mysqli_query($link,'INSERT INTO gesquery.favoritos (titulo,query,user) VALUES ("'.utf8_decode($_POST["titulo"]).'","'.addslashes($_POST["query"]).'","'.$_SESSION["user"].'");'))
+         {
+         $id=mysqli_insert_id($link);         
+    echo '
+    <script>                                                        
+    $("#capaFavoritos").append("<div id=\"fav'.$id.'\"><span onclick=\"escribeFav(this);\" class=\"sentenciaFav\">&raquo; '.addslashes($_POST["titulo"]).'<span class=\"query\">'.addslashes($_POST["query"]).'</span> <div class=\"delete\" onClick=\"borrarFavorito('.$id.')\" title=\"Eliminar\"></div></div>");
+    alert ("Sentencia guardada en tus favoritos!"); 
+    </script>'; 
+    }
+    else {die ("ERROR AL GUARDAR");}    
+     
+    break;
+    
+    
+    
+    case "borrarfavorito" :
+     if ($_POST["idfav"]=="") die();
+     
+     if(mysqli_query($link,'DELETE FROM gesquery.favoritos WHERE id='.$_POST["idfav"].' LIMIT 1'))
+         {
+         $id=$_POST["idfav"];         
+    echo '
+    <script>                                                        
+    $("#fav'.$id.'").html("");
+    $("#fav'.$id.'").css("display","none");
+    </script>'; 
+    }
+    else {die ("ERROR AL GUARDAR");}    
+     
     break;
     
     
@@ -78,7 +114,7 @@ switch ($_POST['accion']) {
                   
     if (!preg_match('/limit [0-9]/i',$_POST["sql"]) && $_POST["sinlimit"]!="1") 
     {
-     if ($_POST["limit"]=="") {$limit="LIMIT 10";} else {$limit="LIMIT ".$_POST["limit"];}
+     if ($_POST["limit"]=="") {$limit="LIMIT 20";} else {$limit="LIMIT ".$_POST["limit"];}
     }
 
     if (tipoSQL($sentencia)>$_SESSION["nivelPermisos"])
@@ -111,8 +147,8 @@ switch ($_POST['accion']) {
                                       
     echo "  <tr>";         
     foreach ($columnas as $valor) {
-        if (substr_count($sentencia,'.')>1) {$mostrarTabla="<br /><span>(".$valor->table.")</span>";}
-        echo "<th>".$valor->name.$mostrarTabla."</th>";
+        if (substr_count($sentencia,'.')>1) {$mostrarTabla="<br /><span>(".utf8_encode($valor->table).")</span>";}
+        echo "<th>".utf8_encode($valor->name).$mostrarTabla."</th>";
     }   //// genera la cabecera 
         
     echo "  </tr>";

@@ -91,7 +91,7 @@ select {
         display: none;
         position:absolute;
         right:2%;                       
-        background-color: #dce6ee; 
+        background-color: #dce6ee;    
         border: 2px solid #435967;
         border-radius: 3px;      
         padding: 5px 10px; 
@@ -101,6 +101,25 @@ select {
         overflow-y:scroll;
         z-index:9999;
         box-shadow: 3px 3px 5px grey;
+    }
+    
+    #sinlimite {  
+        position:absolute;
+        right:3%; 
+        top:44%; 
+        font-size: .9em;
+        font-style: italic;
+        cursor: pointer;
+    }
+    
+    .delete {     
+        width:6px;
+        height:2px;                   
+        background-color: red;
+        display:inline-block;
+        margin-left:10px;
+        margin-bottom: 3px;
+        cursor: pointer;
     }
     
     #textoCompleto {   
@@ -124,12 +143,11 @@ select {
         word-wrap: break-word; 
     }
     
-    .sentenciaFav {cursor:pointer;display:inline-block;}
-    .sentenciaFav:hover {color: #98bad7;}
+    .sentenciaFav {cursor:pointer;display:inline-block;font-weight: bold;}
+    .sentenciaFav:hover {color: #98bad7;} 
+    #addFav {cursor:pointer;font-weight: normal;font-style: italic;}
        
-    .query {
-        display:none;
-    }   
+    .query {display:none;}   
     
     .menuOpciones {
         margin-left: 15px;
@@ -149,7 +167,7 @@ select {
         height:20px;
         background-color:#f8fafb;
         border-radius: 3px;
-    }
+    }                         
     
     .peq {font-size:.9em;}           
     

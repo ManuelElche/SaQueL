@@ -62,12 +62,10 @@ function estructurar() {
     consulta=consulta.replace(/ offset/gi, '\r\n\tOFFSET');      
     consulta=consulta.replace(/, /gi, ',\r\n\t');      
     editor.setValue(consulta); 
-}  
+}   
 
 function lanzar() {
-    var consulta = editor.getValue();
-    var consulta = consulta.trim();  
-    var consulta=consulta.replace(/\s+/g, ' ');  
+    var consulta=limpia(editor.getValue());
     
     compruebaUse = consulta.split(" ", 2); ////  Comprueba si es USE y cambia el <select> de la base de datos
     if (compruebaUse[0]=="use") {use(compruebaUse[1]);exit();}
@@ -131,10 +129,11 @@ function historico() {
         });
 }
 
+$("#addFav").click(guardaFavorito);
 $("#botonLanzar").click(lanzar);
 $("#botonEstructurar").click(estructurar);
 $("#botonHistorico").click(historico);                             
-$("#bds").change(function() {use($('#bds').val());exit();});  
+$("#bds").change(function() {use($('#bds').val());exit();});           
 $("#botonBorrar").click(function() {editor.setValue("");});
 $("#campo").blur(function() {$("#buscacampos").css("display","none");});   
 
@@ -143,7 +142,18 @@ $("#botonFavoritos").click(function() {
     {$("#capaFavoritos").css("display","none");}
     else
     {favoritos();}
-});                                                                                     
+});        
+ 
+$("#sinlimite span").click(function() {
+    if ($('input#sinlimit').is(':checked')) {
+    $( "input#sinlimit" ).prop("checked",false);
+    }
+    else
+    {
+    $( "input#sinlimit" ).prop("checked",true);
+    }
+
+});                                                                             
                                                                          
 $(window).click(function() {$("#capaFavoritos").css("display","none");});   ////oculta capas innecesarias
 $(window).click(function() {$("#textoCompleto").css("display","none");});   ////oculta capas innecesarias
@@ -177,6 +187,54 @@ $("#campo").focus(function() { //// crea la variable campos con todo
 
       
 });        /// fin document ready global
+
+
+
+function limpia(query) {  
+    var query = query.trim();  
+    query=query.replace(/\s+/g, ' ');
+    return query; 
+}
+
+
+function guardaFavorito() {  
+    var consulta=limpia(editor.getValue());
+    var tituloSQL = prompt("Escribe un título para la sentencia", "");   
+      
+        var parametros = {
+                "accion" : "addfavorito",
+                "titulo" : tituloSQL,
+                "query" : consulta
+        };
+        $.ajax({
+                data:  parametros,
+                url:   'ejecuta.php',
+                type:  'post', 
+                success:  function (response) {
+                        $("#resultado").html(response);
+                }
+        });      
+};  
+
+
+function borrarFavorito(idfav) { 
+
+    if (confirm("¿Estás seguro de eliminar esta sentencia de favoritos?")) {  
+      
+        var parametros = {
+                "accion" : "borrarfavorito",
+                "idfav" : idfav
+        };
+        $.ajax({
+                data:  parametros,
+                url:   'ejecuta.php',
+                type:  'post', 
+                success:  function (response) {
+                        $("#resultado").html(response);
+                }
+        }); 
+    };         
+};  
 
 
 function escribeFav(querys) {//// escribe la sql seleccionada en el editor
@@ -216,7 +274,7 @@ function favoritos(accion){
                 url:   'ejecuta.php',
                 type:  'post', 
                 success:  function (response) {
-                        $("#capaFavoritos").html(' + A&ntilde;adir sentencia actual a Favoritos<br />'+response);
+                        $("#capaFavoritos").html('<span id="addFav" onClick="guardaFavorito();" class="sentenciaFav">+ A&ntilde;adir sentencia actual a Favoritos</span><br />'+response);
                         $("#capaFavoritos").css("display","block");
                 }
         });

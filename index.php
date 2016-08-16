@@ -43,22 +43,22 @@ include_once("funciones.php");
         </div>
                                   
           <input type="text" id="campo" class="form-control" placeholder="Buscar campos...">
-          <div id="buscacampos"></div><br />
-        <input type="checkbox" style="vertical-align:text-bottom;" id="sinlimit"> Sin límite
-        <br />
+          <div id="buscacampos"></div><br /> 
         USE: inmo<input type="text" id="idagencia" maxlength="4">   
     </div>         
 
                   
-    <div class="menuOpciones">                                                                     
+    <div class="menuOpciones">                                                                          
         <input type="button" class="btn btn-sm btn-success" id="botonLanzar" value="Lanzar (F9)">
         <input type="button" class="btn btn-sm btn-primary" id="botonEstructurar" value="Estructurar (F10)">
         <input type="button" class="btn btn-sm btn-info" id="botonHistorico" value="Hist&oacute;rico (F8)"> 
         <input type="button" class="btn btn-sm btn-danger" id="botonBorrar" value="Borrar (F7)">
         <input type="button" class="btn btn-sm btn-warning" id="botonFavoritos" value="Favoritos">  
-    </div>
+    </div>                                                                                              
+        
         <div id="capaFavoritos"></div>
         <div id="textoCompleto"></div>
+        <div id="sinlimite"><input type="checkbox" style="vertical-align:text-bottom;" id="sinlimit"> <span>Sin l&iacute;mite</span></div>
 
     <div id="editor"></div>
 

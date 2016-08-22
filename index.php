@@ -1,7 +1,7 @@
 <?php               
 session_start();
 $_SESSION["user"]="6";    
-$_SESSION["nivelPermisos"]="3";
+$_SESSION["nivelPermisos"]="2";
 
 //////////////////////////////////////////////////////////////////
 /////////////    NIVELES DE PERMISOS (RECURSIVOS)   //////////////

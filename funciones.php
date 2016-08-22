@@ -2,6 +2,7 @@
 session_start();
 $noPuedes='<div class="alert alert-danger"><b>ERROR!</b> No puedes ejecutar esta sentencia.</div>'; 
 $noPermisos='<div class="alert alert-danger"><b>ERROR!</b> No tienes permisos para ejecutar este tipo de sentencias.</div>'; 
+$noPermisosMultiples='<div class="alert alert-danger"><b>ERROR!</b> No tienes permisos para ejecutar alguna sentencia de las que has lanzado.</div>'; 
  
 $bdsArray = [
     "inmovacia" => "4",  //// aquí podemos dar permisos a cada base de datos,

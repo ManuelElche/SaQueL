@@ -4,7 +4,7 @@ include_once("cxn.php");
 include_once("funciones.php");
 
 ini_set("display_errors", 0);   
-
+$limitePorDefecto=10;
   
 switch ($_POST['accion']) {             
     
@@ -110,11 +110,71 @@ switch ($_POST['accion']) {
     
     
     case "consulta" :
-    $sentencia=$_POST["sql"];                              
-                  
+    $sentencia=$_POST["sql"]; 
+    
+    $puntosYcoma=substr_count($sentencia,";");
+        
+if ($puntosYcoma>1) 
+{   $sentencias=explode(";",$_POST["sql"]);
+
+foreach ($sentencias as $sentencia)
+{ ///este foreach analiza que el user tenga permisos para lanzar todas, y que no haya ningún select, ni drops, etc    
+    $sentencia=trim($sentencia); 
+    if ($sentencia=="") continue;
+    if (tipoSQL($sentencia)==1) die ('<div class="alert alert-danger">No tiene sentido que lances varias consultas con un SELECT... elimina dichas consultas y vuelve a lanzarlas.</div>');
+    if (tipoSQL($sentencia)>4) die ('<div class="alert alert-danger">Este tipo de consultas tan delicadas no se permiten lanzar de manera m&uacute;ltiple, debes lanzarlas una a una.</div>');
+    
+    if (tipoSQL($sentencia)>$_SESSION["nivelPermisos"])
+    { 
+            ejecutaqry($link,$sentencia,"-2");
+            die ($noPermisosMultiples); 
+    }
+    else
+    {  
+        if (bdSoloLectura($_POST["bd"],$sentencia,tipoSQL($sentencia))) {
+            ejecutaqry($link,$sentencia,"-3");
+            die (mensajePermisos(tipoSQL($sentencia)));
+        }                                                                             
+    } 
+    
+    
+}
+
+foreach ($sentencias as $sentencia)  ///este lanza las query,
+{   $sentencia=trim($sentencia); 
+    if ($sentencia=="") continue; // por si vienen varios ; seguidos 
+              
+    if (!preg_match('/limit [0-9]/i',$sentencia) && $_POST["sinlimit"]!="1") 
+    {
+     if ($_POST["limit"]=="") {$limit="LIMIT ".$limitePorDefecto;} else {$limit="LIMIT ".$_POST["limit"];}
+    }
+ 
+    echo ' <table id="resultadosql"><tr>';                                
+    
+    mysqli_select_db($link,$_POST["bd"]);
+
+    echo "<p>SENTENCIA (tipo ".tipoSQL($sentencia)."): ".$sentencia."</p>";
+    $qry=mysqli_query($link,$sentencia);
+                     
+  if (mysqli_error($link)) {$errores .= ' - '.mysqli_error($link).'<br />';$numresultados="-1";}
+        $afectadas=mysqli_affected_rows($link);   
+        
+        if ($afectadas>-1 && tipoSQL($sentencia)=="2") {$numresultados=$afectadas;$afectadas2=$afectadas2+$afectadas;$msj2 = '<div class="alert alert-success">'.$afectadas2." registro".plural($afectadas2)." a&ntilde;adido".plural($afectadas2).".</div>";}
+        if ($afectadas>-1 && tipoSQL($sentencia)=="3") {$numresultados=$afectadas;$afectadas3=$afectadas3+$afectadas;$msj3 = '<div class="alert alert-success">'.$afectadas3." registro".plural($afectadas3)." modificado".plural($afectadas3).".</div>";}
+        if ($afectadas>-1 && tipoSQL($sentencia)=="4") {$numresultados=$afectadas;$afectadas4=$afectadas4+$afectadas;$msj4 = '<div class="alert alert-success">'.$afectadas4." registro".plural($afectadas4)." eliminado".plural($afectadas4).". </div>";}
+          
+        ejecutaqry($link,$sentencia,mysqli_affected_rows($link));
+        
+       
+} /// foreach     
+if ($errores!="") echo '<div class="alert alert-danger"><b>SENTENCIAS CON ERRORES:</b><br />'.$errores."</div>";         
+}      
+else
+{
+    
     if (!preg_match('/limit [0-9]/i',$_POST["sql"]) && $_POST["sinlimit"]!="1") 
     {
-     if ($_POST["limit"]=="") {$limit="LIMIT 20";} else {$limit="LIMIT ".$_POST["limit"];}
+     if ($_POST["limit"]=="") {$limit="LIMIT ".$limitePorDefecto;} else {$limit="LIMIT ".$_POST["limit"];}
     }
 
     if (tipoSQL($sentencia)>$_SESSION["nivelPermisos"])
@@ -141,9 +201,7 @@ switch ($_POST['accion']) {
     $columnas=mysqli_fetch_fields($qry);
     $ncolumnas=count($columnas);
                             
-                            
-                            
-                            
+            
                                       
     echo "  <tr>";         
     foreach ($columnas as $valor) {
@@ -173,17 +231,20 @@ switch ($_POST['accion']) {
                 }
             $tablas.= '</tr>';
         }     
-        echo $tablas;                       
+        echo $tablas;                      
         if (mysqli_error($link)) {echo '<div class="alert alert-danger">'.mysqli_error($link)."</div>";$numresultados="-1";}
         $afectadas=mysqli_affected_rows($link);
+        
         if ($afectadas>-1 && tipoSQL($sentencia)!="1") {$numresultados=$afectadas;$msj = '<div class="alert alert-success">'.$afectadas." registro".plural($afectadas)." afectado".plural($afectadas).".</div>";}
-        if ($afectadas>-1 && tipoSQL($sentencia)=="2") {$numresultados=$afectadas;$msj = '<div class="alert alert-success">'.$afectadas." registro".plural($afectadas)." modificado".plural($afectadas).".</div>";}
-        if ($afectadas>-1 && tipoSQL($sentencia)=="3") {$numresultados=$afectadas;$msj = '<div class="alert alert-success">'.$afectadas." registro".plural($afectadas)." a&ntilde;adido".plural($afectadas).".</div>";}
+        if ($afectadas>-1 && tipoSQL($sentencia)=="2") {$numresultados=$afectadas;$msj = '<div class="alert alert-success">'.$afectadas." registro".plural($afectadas)." a&ntilde;adido".plural($afectadas).".</div>";}
+        if ($afectadas>-1 && tipoSQL($sentencia)=="3") {$numresultados=$afectadas;$msj = '<div class="alert alert-success">'.$afectadas." registro".plural($afectadas)." modificado".plural($afectadas).".</div>";}
         if ($afectadas>-1 && tipoSQL($sentencia)=="4") {$numresultados=$afectadas;$msj = '<div class="alert alert-success">'.$afectadas." registro".plural($afectadas)." eliminado".plural($afectadas).". </div>";}
         
-        ejecutaqry($link,$sentencia,$numresultados);
+        ejecutaqry($link,$sentencia,$numresultados); 
+}
+  
         if ($numresultados<0) {$numresultados="0";}            
-    echo $msj.' </table>
+    echo $msj.$msj2.$msj3.$msj4.' </table>
     <script>
         $("#total").html("Total registros: '.$numresultados.'");
     </script>';   

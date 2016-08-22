@@ -38,11 +38,7 @@ if (listaCampos=="") {listaCampos='<span class="peq">No hay campos con &quot;<b>
 $("#buscacampos").html(listaCampos);
 $("#buscacampos").css("display","inline-block");
 $(".listcampo").mousedown(function() {editor.insert($(this).html());});   
-        }); 
-                       
-                      
-                      
-    
+        });      
                        
                                   
 function estructurar() {

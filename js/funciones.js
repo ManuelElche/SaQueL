@@ -83,33 +83,7 @@ function lanzar() {
                         $("#resultado").html(response);
                 }
         });
-}
-
-function use(bdatos) {
-var bdatos=bdatos.trim();
-window.esta=0;
-$("#bds>option").map(function() {
-var optionBD=$(this).val(); 
-    if (optionBD==bdatos)
-    window.esta++;
-}); 
-
-if (window.esta==0)
-    {alert("No existe la base de datos "+bdatos+"!"); exit();}
-
-        var parametros = {
-                "accion" : "use",      
-                "bd" : bdatos
-        };
-        $.ajax({
-                data:  parametros,
-                url:   'ejecuta.php',
-                type:  'post', 
-                success:  function (response) {
-                        $("#resultado").html(response);
-                }
-        });         
-}
+}       
 
 function historico() {  
         var parametros = {
@@ -144,6 +118,13 @@ $("#botonNew").click(function() {
     var v=parseInt($("#v").val());
     v=v+1;
     window.open("?v="+v);
+});      
+
+$("#escribeTexto").click(function() {
+    var ebd=$("#bds").val();
+    var etabla=$("#tablas").val();
+    var query='SELECT * FROM `'+ebd+'`.`'+etabla+'` ';
+    editor.setValue(query); 
 });        
  
 $("#sinlimite span").click(function() {
@@ -191,6 +172,31 @@ $("#campo").focus(function() { //// crea la variable campos con todo
 });        /// fin document ready global
 
 
+function use(bdatos) {
+var bdatos=bdatos.trim();
+window.esta=0;
+$("#bds>option").map(function() {
+var optionBD=$(this).val(); 
+    if (optionBD==bdatos)
+    window.esta++;
+}); 
+
+if (window.esta==0)
+    {alert("No existe la base de datos \u00AB"+bdatos+"\u00BB"); exit();}
+
+        var parametros = {
+                "accion" : "use",      
+                "bd" : bdatos
+        };
+        $.ajax({
+                data:  parametros,
+                url:   'ejecuta.php',
+                type:  'post', 
+                success:  function (response) {
+                        $("#resultado").html(response);
+                }
+        });         
+}   
 
 function limpia(query) {  
     var query = query.trim();  

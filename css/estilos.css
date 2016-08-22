@@ -187,7 +187,18 @@ select {
         cursor:pointer;
     }       
     
-          
+    .escribeTexto {
+        margin: 9px 0 0 0;
+        width: 60%;
+        padding-left: 20%;
+        padding-top: 25%;
+    }
+        
+    .use {
+       display: inline;
+       cursor:pointer;
+    }  
+    
 table {
   border: 0;
   width: 100%;

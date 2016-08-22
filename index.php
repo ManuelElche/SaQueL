@@ -36,15 +36,27 @@ include_once("funciones.php");
     <div class="menuIzq">
             <?php echo dameBD();?>   
 
-        <div id="capaTablas">
+            
+        <div id="capaTablas" class="btn-group-justified" style="width:90%;float:left;">
           <select class="form-control" id="tablas">
             <option value="">...</option>
-          </select>   
-        </div>
+          </select>                            
+        </div>  
+        <div style="width:8%;float:left;margin-left:2%;">
+           <input type="button" class="btn btn-info escribeTexto" id="escribeTexto" value=">">
+        </div>    
                                   
-          <input type="text" id="campo" class="form-control" placeholder="Buscar campos...">
-          <div id="buscacampos"></div><br /> 
-        USE: inmo<input type="text" id="idagencia" maxlength="4">   
+          <input type="text" id="campo" class="form-control" style="margin-bottom:8px;" placeholder="Buscar campos...">
+          <div id="buscacampos"></div> 
+          <div class="peq">
+            <span class="peq">Accesos Directos:</span><br />      
+                inmo<input type="text" id="idagencia" maxlength="4"> |               
+                <div class="use" onClick="use('inmoweb');">inmoweb</div> |  
+                <div class="use" onClick="use('mls');">mls</div> |  
+                <div class="use" onClick="use('bdweb');">bdweb</div> |  
+                <div class="use" onClick="use('gesquery');">gesquery</div> +    
+                <div class="use" onClick="use('inmociudad');">inmociudad</div>   
+          </div>
     </div>         
 
                   

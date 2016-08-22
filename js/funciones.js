@@ -138,6 +138,12 @@ $("#botonFavoritos").click(function() {
     {$("#capaFavoritos").css("display","none");}
     else
     {favoritos();}
+});     
+
+$("#botonNew").click(function() {
+    var v=parseInt($("#v").val());
+    v=v+1;
+    window.open("?v="+v);
 });        
  
 $("#sinlimite span").click(function() {

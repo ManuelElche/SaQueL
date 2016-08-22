@@ -29,7 +29,7 @@ include_once("funciones.php");
   <script src="js/funciones.js"></script>
 </head>
 <body>                   
-<h3>Sentencias SQL</h3>         
+<h3>Inmovilla SQL</h3>         
 <div id="formulario" class="form">       
 
 
@@ -54,6 +54,8 @@ include_once("funciones.php");
         <input type="button" class="btn btn-sm btn-info" id="botonHistorico" value="Hist&oacute;rico (F8)"> 
         <input type="button" class="btn btn-sm btn-danger" id="botonBorrar" value="Borrar (F7)">
         <input type="button" class="btn btn-sm btn-warning" id="botonFavoritos" value="Favoritos">  
+        <input type="button" class="btn btn-sm btn-default" id="botonNew" value="Nueva ventana">  
+        <input type="hidden" id="v" value="<?php if ($_GET['v']=="") {echo "1";} else {echo $_GET['v'];};?>">  
     </div>                                                                                              
         
         <div id="capaFavoritos"></div>

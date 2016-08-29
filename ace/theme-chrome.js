@@ -97,7 +97,7 @@ margin: -1px 0 0 -1px;\
 border: 1px solid rgb(192, 192, 192);\
 }\
 .ace-chrome .ace_marker-layer .ace_active-line {\
-background: rgba(0, 0, 0, 0.07);\
+background: rgba(0, 0, 0, 0.05);\
 }\
 .ace-chrome .ace_gutter-active-line {\
 background-color : #dcdcdc;\

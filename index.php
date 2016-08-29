@@ -1,7 +1,11 @@
 <?php               
-session_start();
+session_start();             
+include_once("cxn.php"); 
 $_SESSION["user"]="6";    
-$_SESSION["nivelPermisos"]="2";
+$_SESSION["nivelPermisos"]="2"; 
+
+$useInmo="1"; $useVolcado="1"; /// Los accesos directos inmo[0000] y  volcado[0000]
+
 
 //////////////////////////////////////////////////////////////////
 /////////////    NIVELES DE PERMISOS (RECURSIVOS)   //////////////
@@ -14,8 +18,8 @@ $_SESSION["nivelPermisos"]="2";
 /////////////    5    EMPTY, DROP, TRUNCATE...      //////////////
 /////////////    6    MYSQLDUMP                     //////////////
 //////////////////////////////////////////////////////////////////
-    
-include_once("funciones.php");
+                           
+include_once("funciones.php"); 
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -24,7 +28,7 @@ include_once("funciones.php");
 <title>SaQueL</title>                                                  
   <link rel="stylesheet" href="css/bootstrap.min.css">
   <link rel="stylesheet" href="css/estilos.css">
-  <script src="js/jquery.min.js"></script>
+  <script src="js/jquery.min.js"></script>         
   <script src="js/bootstrap.min.js"></script>
   <script src="js/funciones.js"></script>
 </head>
@@ -33,8 +37,8 @@ include_once("funciones.php");
 <div id="formulario" class="form">       
 
 
-    <div class="menuIzq">
-            <?php echo dameBD();?>   
+    <div class="menuIzq">          
+            <?php echo dameBD($link);?>   
 
             
         <div id="capaTablas" class="btn-group-justified" style="width:90%;float:left;">
@@ -48,14 +52,16 @@ include_once("funciones.php");
                                   
           <input type="text" id="campo" class="form-control" style="margin-bottom:8px;" placeholder="Buscar campos...">
           <div id="buscacampos"></div> 
-          <div class="peq">
-            <span class="peq">Accesos Directos:</span><br />      
-                inmo<input type="text" id="idagencia" maxlength="4"> |               
-                <div class="use" onClick="use('inmoweb');">inmoweb</div> |  
-                <div class="use" onClick="use('mls');">mls</div> |  
-                <div class="use" onClick="use('bdweb');">bdweb</div> |  
-                <div class="use" onClick="use('gesquery');">gesquery</div> +    
-                <div class="use" onClick="use('inmociudad');">inmociudad</div>   
+          <div id="accesosDirectos" class="peq" style="font-size: .8em;">
+            <span class="peq">Accesos Directos:</span>
+            <img class="imgButton" id="botonADirectos" src="img/config.png" alt="Administrar Accesos directos" style="width:12px;">
+            <br />      
+                              
+                <?php
+                if ($useInmo==1) echo 'inmo<input type="text" id="idagencia" class="idadirecto" maxlength="4"> | '; 
+                if ($useVolcado==1) echo 'volcado<input type="text" id="idvolcado" class="idadirecto" maxlength="4"> | ';          
+                echo dameAD($link); /// extrae los accesos directos guardados en gesquery.favoritos de tipo=2                  
+                ?>                                                                    
           </div>
     </div>         
 
@@ -71,22 +77,21 @@ include_once("funciones.php");
     </div>                                                                                              
         
         <div id="capaFavoritos"></div>
+        <div id="capaAccesosDirectos"></div>
         <div id="textoCompleto"></div>
         <div id="sinlimite"><input type="checkbox" style="vertical-align:text-bottom;" id="sinlimit"> <span>Sin l&iacute;mite</span></div>
 
-    <div id="editor"></div>
-
-
+    <div id="editor"></div> 
 </div>
 
-<div id="resultado"></div>
-<div id="total">Total registros: 0</div>
+<div id="resultado"></div> 
+<div id="total">Total registros: 0</div>  
 
 <script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
 <script>
     var editor = ace.edit("editor");
     editor.setTheme("ace/theme/chrome");
     editor.getSession().setMode("ace/mode/mysql");
-</script>
+</script>        
 </body>
-</html>
+</html>        

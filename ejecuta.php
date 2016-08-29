@@ -1,9 +1,9 @@
 <?php
 session_start();
 include_once("cxn.php");      
-include_once("funciones.php");
+include_once("funciones.php");   
 
-ini_set("display_errors", 0);   
+ini_set("display_errors", 1);   
 $limitePorDefecto=10;
   
 switch ($_POST['accion']) {             
@@ -16,7 +16,7 @@ switch ($_POST['accion']) {
         {$tablas.= '    <option value="'.$tabla[0].'">'.$tabla[0].'</option>';}
     $tablas.='</select>';    
     echo $tablas;  
-    mysqli_free_result($link);
+    mysqli_free_result($lista_tablas);
     break;
 
     
@@ -45,13 +45,13 @@ switch ($_POST['accion']) {
     
     case "favoritos" :
      mysqli_select_db($link,"gesquery");
-     $listado = mysqli_query($link,'SELECT titulo, query, id FROM gesquery.favoritos WHERE user="6" ORDER BY titulo;'); 
+     $listado = mysqli_query($link,'SELECT titulo, query, id FROM gesquery.favoritos WHERE user="'.$_SESSION["user"].'" AND tipo="1" ORDER BY titulo;'); 
 
     while ($lista=mysqli_fetch_array($listado))
-        {$campos.= '<div id="fav'.$lista[2].'"><span onClick="escribeFav(this);" class="sentenciaFav">&raquo; '.utf8_encode($lista[0]).'<span class="query">'.utf8_encode($lista[1]).'</span></span> <div class="delete" onClick="borrarFavorito('.$lista[2].');" title="Eliminar"></div></div>';}
+        {$campos.= '<div id="fav'.$lista[2].'"><span onClick="escribeFav(this);" class="sentenciaAnadir">&nbsp;&nbsp;&raquo; '.utf8_encode($lista[0]).'<span class="query">'.utf8_encode($lista[1]).'</span></span> <div class="delete" onClick="borrarFavorito('.$lista[2].');" title="Eliminar"></div></div>';}
                    
     echo $campos;  
-    mysqli_free_result($link);
+    mysqli_free_result($listado);
     break; 
     
     
@@ -64,7 +64,7 @@ switch ($_POST['accion']) {
          $id=mysqli_insert_id($link);         
     echo '
     <script>                                                        
-    $("#capaFavoritos").append("<div id=\"fav'.$id.'\"><span onclick=\"escribeFav(this);\" class=\"sentenciaFav\">&raquo; '.addslashes($_POST["titulo"]).'<span class=\"query\">'.addslashes($_POST["query"]).'</span> <div class=\"delete\" onClick=\"borrarFavorito('.$id.')\" title=\"Eliminar\"></div></div>");
+    $("#capaFavoritos").append("<div id=\"fav'.$id.'\"><span onclick=\"escribeFav(this);\" class=\"sentenciaAnadir\">&nbsp;&nbsp;&nbsp;&raquo; '.addslashes($_POST["titulo"]).'<span class=\"query\">'.addslashes($_POST["query"]).'</span> <div class=\"delete\" onClick=\"borrarFavorito('.$id.',2)\" title=\"Eliminar\"></div></div>");
     alert ("Sentencia guardada en tus favoritos!"); 
     </script>'; 
     }
@@ -74,18 +74,63 @@ switch ($_POST['accion']) {
     
     
     
-    case "borrarfavorito" :
-     if ($_POST["idfav"]=="") die();
+    case "borrarfavorito" :  ////esta se usa tanto para borrar favorito como para borrar accesos directos
+     if ($_POST["idfav"]=="") die("ERROR 1");
      
      if(mysqli_query($link,'DELETE FROM gesquery.favoritos WHERE id='.$_POST["idfav"].' LIMIT 1'))
          {
-         $id=$_POST["idfav"];         
+         $id=$_POST["idfav"]; 
+
+         if ($_POST["tipo"]=="2") {
+         $ocultaAcceso='   
+         $("#favmini'.$id.'").html("");
+         $("#favmini'.$id.'").css("display","none");
+         
+         ';}
+    
     echo '
-    <script>                                                        
+    <script>                                                                            
     $("#fav'.$id.'").html("");
     $("#fav'.$id.'").css("display","none");
-    </script>'; 
+    '.$ocultaAcceso.'
+    </script>';  
+    
+
     }
+    else {die ("ERROR 2");}    
+     
+    break;
+    
+    
+    
+    
+    case "adirectos" :
+     mysqli_select_db($link,"gesquery");
+     $listado = mysqli_query($link,'SELECT titulo, query, id FROM gesquery.favoritos WHERE user="'.$_SESSION["user"].'" and tipo="2" ORDER BY titulo;'); 
+
+    while ($lista=mysqli_fetch_array($listado))
+        {$campos.= '<div id="fav'.$lista[2].'"><span class="sentenciaAnadir">&nbsp;&nbsp;&nbsp;&raquo; '.utf8_encode($lista[0]).'</span> <div class="delete" onClick="borrarFavorito('.$lista[2].',2);" title="Eliminar"></div></div>';}
+                   
+    echo $campos;  
+    mysqli_free_result($listado);
+    break;                                                                   
+    
+    
+    
+    case "addadirectos" :
+     if ($_POST["titulo"]=="" || $_SESSION["user"]=="") die();
+     
+     if(mysqli_query($link,'INSERT INTO gesquery.favoritos (titulo,user,tipo) VALUES ("'.utf8_decode($_POST["titulo"]).'","'.$_SESSION["user"].'","2");'))
+         {
+         $id=mysqli_insert_id($link);         
+    echo '
+    <script>                                                        
+    $("#capaAccesosDirectos").append("<div id=\"fav'.$id.'\"><span class=\"sentenciaAnadir\">&nbsp;&nbsp;&nbsp;&raquo; '.addslashes($_POST["titulo"]).'<span class=\"query\">'.addslashes($_POST["query"]).'</span> <div class=\"delete\" onClick=\"borrarFavorito('.$id.')\" title=\"Eliminar\"></div></div>");
+    $("#accesosDirectos").append("<div class=\"use\" id=\"favmini'.$id.'\" onClick=\"use(\''.addslashes($_POST["titulo"]).'\');\">'.addslashes($_POST["titulo"]).' | </div>");
+    alert ("Acceso directo a\u00F1adido!"); 
+    </script>'; 
+    }   
+    
     else {die ("ERROR AL GUARDAR");}    
      
     break;
@@ -118,7 +163,7 @@ if ($puntosYcoma>1)
 {   $sentencias=explode(";",$_POST["sql"]);
 
 foreach ($sentencias as $sentencia)
-{ ///este foreach analiza que el user tenga permisos para lanzar todas, y que no haya ningún select, ni drops, etc    
+{ ///este foreach analiza que el user tenga permisos para lanzar todas, y que no haya ningún select, ni drops, etc ya que estas sentencias no tendrían sentido o son peligrosas
     $sentencia=trim($sentencia); 
     if ($sentencia=="") continue;
     if (tipoSQL($sentencia)==1) die ('<div class="alert alert-danger">No tiene sentido que lances varias consultas con un SELECT... elimina dichas consultas y vuelve a lanzarlas.</div>');
@@ -153,7 +198,7 @@ foreach ($sentencias as $sentencia)  ///este lanza las query,
     
     mysqli_select_db($link,$_POST["bd"]);
 
-    echo "<p>SENTENCIA (tipo ".tipoSQL($sentencia)."): ".$sentencia."</p>";
+    //echo "<p>SENTENCIA (tipo ".tipoSQL($sentencia)."): ".$sentencia."</p>";
     $qry=mysqli_query($link,$sentencia);
                      
   if (mysqli_error($link)) {$errores .= ' - '.mysqli_error($link).'<br />';$numresultados="-1";}
@@ -189,7 +234,8 @@ else
             die (mensajePermisos(tipoSQL($sentencia)));
         }                                                                             
     }
-    echo ' <table id="resultadosql"><tr>';                                
+    echo ' <table id="resultadosql">
+        <thead><tr>';                                
     
     mysqli_select_db($link,$_POST["bd"]);
     if (tipoSQL($sentencia)=="1") $sentencia=$_POST["sql"]." ".$limit;
@@ -197,31 +243,36 @@ else
     echo "<p>SENTENCIA (tipo ".tipoSQL($sentencia)."): ".$sentencia."</p>";
     $qry=mysqli_query($link,$sentencia);
     
-    $numresultados=mysqli_num_rows($qry);
-    $columnas=mysqli_fetch_fields($qry);
-    $ncolumnas=count($columnas);
-                            
+    if (!mysqli_error($link) && tipoSQL($sentencia)==1) {  
+        $numresultados=mysqli_num_rows($qry);
+        $columnas=mysqli_fetch_fields($qry);
+        $ncolumnas=count($columnas); 
             
                                       
-    echo "  <tr>";         
+          
     foreach ($columnas as $valor) {
         if (substr_count($sentencia,'.')>1) {$mostrarTabla="<br /><span>(".utf8_encode($valor->table).")</span>";}
         echo "<th>".utf8_encode($valor->name).$mostrarTabla."</th>";
     }   //// genera la cabecera 
-        
-    echo "  </tr>";
+                            
+    echo "  </tr>
+        </thead>
+        <tbody>";
     
     
    while ($tabla=mysqli_fetch_array($qry)) //// genera la tabla con los resultados
         {$nfila++;  
-        $limiteTexto=30; // limite de caracteres por celda  
+        $limiteTexto=30; // limite de caracteres por celda                       
             if ($nfila%2==0) {$parinpar="par";} else {$parinpar="inpar";}
             $tablas.= '<tr class="'.$parinpar.'">';
             for ($a=0;$a<$ncolumnas;$a++)
-                {  $todo=$tabla[$a]=utf8_encode($tabla[$a]);   
+                {
+                    if ($tabla[$a] === NULL) {$tablas.= '<td class="null">(NULL)</td>';continue;}
+                    $todo=$tabla[$a]=utf8_encode($tabla[$a]);   
                     if (strlen($tabla[$a])>$limiteTexto) {$tabla[$a]=cortaTexto($tabla[$a],$limiteTexto);}
                     
-                    $textfinal=htmlspecialchars($tabla[$a]);
+                    
+                    $textfinal=htmlspecialchars($tabla[$a]);                           
                     $todo=htmlspecialchars($todo);          
                     if (strlen($todo)>strlen($tabla[$a])) //// si el conenido es muy largo, lo mostramos en ventana modal
                         {$tablas.= '<td ondblclick="verInfo(this);">'.$textfinal.'<span>'.$todo.'</span></td}>';}
@@ -229,10 +280,12 @@ else
                         {$tablas.= '<td>'.$todo.'</td>';}
                     
                 }
-            $tablas.= '</tr>';
-        }     
-        echo $tablas;                      
-        if (mysqli_error($link)) {echo '<div class="alert alert-danger">'.mysqli_error($link)."</div>";$numresultados="-1";}
+            $tablas.= '</tr>';          
+        }  ///// fin del while montando la tabla con los resultados   
+    }   //// fin si ha dado error mysli_query de $qry
+                         
+        echo $tablas;                
+        if (mysqli_error($link)) {echo '<div class="alert alert-danger">'.mysqli_error($link)."</div>";$numresultados="-1";} elseif (tipoSQL($sentencia)==1) {mysqli_free_result($qry);}
         $afectadas=mysqli_affected_rows($link);
         
         if ($afectadas>-1 && tipoSQL($sentencia)!="1") {$numresultados=$afectadas;$msj = '<div class="alert alert-success">'.$afectadas." registro".plural($afectadas)." afectado".plural($afectadas).".</div>";}
@@ -240,16 +293,18 @@ else
         if ($afectadas>-1 && tipoSQL($sentencia)=="3") {$numresultados=$afectadas;$msj = '<div class="alert alert-success">'.$afectadas." registro".plural($afectadas)." modificado".plural($afectadas).".</div>";}
         if ($afectadas>-1 && tipoSQL($sentencia)=="4") {$numresultados=$afectadas;$msj = '<div class="alert alert-success">'.$afectadas." registro".plural($afectadas)." eliminado".plural($afectadas).". </div>";}
         
-        ejecutaqry($link,$sentencia,$numresultados); 
-}
+        ejecutaqry($link,$sentencia,$numresultados);        
+}         
   
         if ($numresultados<0) {$numresultados="0";}            
-    echo $msj.$msj2.$msj3.$msj4.' </table>
+    echo $msj.$msj2.$msj3.$msj4.'
+        </tbody>
+    </table>
+    
     <script>
         $("#total").html("Total registros: '.$numresultados.'");
     </script>';   
-                 
-    mysqli_free_result($link);
+                                                                
     break;
     
     
@@ -309,7 +364,7 @@ else
     
     
     default : 
-    echo "sin instrucciones";
+    echo "Sin instrucciones...";
     break;
     
     

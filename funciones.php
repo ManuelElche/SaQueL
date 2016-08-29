@@ -1,13 +1,13 @@
 <?php          
-session_start();
+session_start();                
 $noPuedes='<div class="alert alert-danger"><b>ERROR!</b> No puedes ejecutar esta sentencia.</div>'; 
 $noPermisos='<div class="alert alert-danger"><b>ERROR!</b> No tienes permisos para ejecutar este tipo de sentencias.</div>'; 
 $noPermisosMultiples='<div class="alert alert-danger"><b>ERROR!</b> No tienes permisos para ejecutar alguna sentencia de las que has lanzado.</div>'; 
  
 $bdsArray = [
-    "inmovacia" => "4",  //// aquí podemos dar permisos a cada base de datos,
+    "inmovacia" => "4",  //// aquí podemos proteger cada base de datos con permisos a la propia base de datos
     "gesquery" => "2",   //// para ver lo que se puede hacer con ella de forma global
-    "inmo1" => "4"      //// los niveles de pemisos son los mismos que el de usuarios (inicio de este fichero)
+    "inmo1" => "4"      //// los niveles de pemisos son los mismos que el de usuarios (inicio fichero index.php)
 ];
 
 
@@ -44,8 +44,7 @@ return $tiposql;
 }
       
       
-function dameBD() {    
-include_once("cxn.php");
+function dameBD($link) {  
 $lista_bd = mysqli_query($link,'SHOW DATABASES;');
 $bds.= '
         <select class="form-control" id="bds" onChange="extrae(\'capaTablas\');">
@@ -65,7 +64,22 @@ $bds.= '
         });
         </script>
         ";
+mysqli_free_result($lista_bd);  
 return $bds;
+}
+      
+      
+function dameAD($link) {                
+mysqli_select_db($link,"gesquery");
+$lista_ad=mysqli_query($link,'SELECT id, titulo FROM gesquery.favoritos WHERE tipo="2"');
+          //die('SELECT titulo FROM gesquery.favoritos WHERE user="'.$_SESSION["user"].'" and tipo="2"');
+    while ($ad=mysqli_fetch_assoc($lista_ad))
+    {                                                                            
+        $ads.= '<div class="use" id="favmini'.$ad[id].'" onClick="use(\''.$ad[titulo].'\');">'.$ad[titulo].' |</div>
+    ';
+    }                     
+mysqli_free_result($lista_ad); 
+echo $ads;
 }
 
     

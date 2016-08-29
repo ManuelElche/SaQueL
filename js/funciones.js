@@ -15,7 +15,13 @@ $(document).ready(function() {
             if (event.which==13 || event.which==32) { // 13=>tecla intro, 32=>tecla espacio
             use("inmo"+$("#idagencia").val());
             } 
-        });         
+        });   
+        
+        $("#idvolcado").keydown(function(event){                
+            if (event.which==13 || event.which==32) { // 13=>tecla intro, 32=>tecla espacio
+            use("volcado"+$("#idvolcado").val());
+            } 
+        });          
         //alert("El cÃ³digo de la tecla " + String.fromCharCode(event.which) + " es: " + event.which); // para ver el código
                
                                   
@@ -37,7 +43,7 @@ $("#campo").keyup(function(event){
 if (listaCampos=="") {listaCampos='<span class="peq">No hay campos con &quot;<b>'+textbusca+'</b>&quot;</span>';}  
 $("#buscacampos").html(listaCampos);
 $("#buscacampos").css("display","inline-block");
-$(".listcampo").mousedown(function() {editor.insert($(this).html());});   
+$(".listcampo").mousedown(function() {editor.insert('`'+$(this).html()+'`');});   
         });      
                        
                                   
@@ -78,7 +84,10 @@ function lanzar() {
         $.ajax({
                 data:  parametros,
                 url:   'ejecuta.php',
-                type:  'post', 
+                type:  'post',
+                beforeSend: function () {
+                        $("#resultado").html('<span class="loading"></span>');
+                }, 
                 success:  function (response) {
                         $("#resultado").html(response);
                 }
@@ -100,18 +109,27 @@ function historico() {
 }
 
 $("#addFav").click(guardaFavorito);
+$("#addAD").click(guardaAD);        
 $("#botonLanzar").click(lanzar);
 $("#botonEstructurar").click(estructurar);
 $("#botonHistorico").click(historico);                             
 $("#bds").change(function() {use($('#bds').val());exit();});           
 $("#botonBorrar").click(function() {editor.setValue("");});
 $("#campo").blur(function() {$("#buscacampos").css("display","none");});   
+       
 
 $("#botonFavoritos").click(function() { 
     if ($('#capaFavoritos').css('display')=="block")
     {$("#capaFavoritos").css("display","none");}
     else
     {favoritos();}
+});   
+
+$("#botonADirectos").click(function() { 
+    if ($('#capaAccesosDirectos').css('display')=="block")
+    {$("#capaAccesosDirectos").css("display","none");}
+    else
+    {accesosDirectos();}
 });     
 
 $("#botonNew").click(function() {
@@ -172,6 +190,10 @@ $("#campo").focus(function() { //// crea la variable campos con todo
 });        /// fin document ready global
 
 
+function cerrar(capa) {      
+    capa.parentElement.style.display='none';
+};  
+
 function use(bdatos) {
 var bdatos=bdatos.trim();
 window.esta=0;
@@ -207,7 +229,8 @@ function limpia(query) {
 
 function guardaFavorito() {  
     var consulta=limpia(editor.getValue());
-    var tituloSQL = prompt("Escribe un título para la sentencia", "");   
+    var tituloSQL = prompt("Escribe un título para la sentencia", "");     
+        tituloSQL=tituloSQL.trim(); 
       
         var parametros = {
                 "accion" : "addfavorito",
@@ -225,13 +248,15 @@ function guardaFavorito() {
 };  
 
 
-function borrarFavorito(idfav) { 
-
-    if (confirm("¿Estás seguro de eliminar esta sentencia de favoritos?")) {  
+function borrarFavorito(idfav,tipo) { 
+     if (tipo==2) {var mensaje='este acceso directo';} else {var mensaje='esta sentencia de favoritos';}
+     
+    if (confirm("¿Estás seguro de eliminar "+mensaje+"?")) {  
       
         var parametros = {
                 "accion" : "borrarfavorito",
-                "idfav" : idfav
+                "idfav" : idfav,
+                "tipo" : tipo
         };
         $.ajax({
                 data:  parametros,
@@ -250,6 +275,25 @@ function escribeFav(querys) {//// escribe la sql seleccionada en el editor
     editor.setValue(querySpan);   
     $("#capaFavoritos").css("display","block");         
 }; 
+
+
+function guardaAD() {                      
+    var titulo = prompt("Escribe el nombre de la base de datos para el acceso directo", "");   
+        titulo=limpia(titulo);
+            
+        var parametros = {
+                "accion" : "addadirectos",
+                "titulo" : titulo
+        };
+        $.ajax({
+                data:  parametros,
+                url:   'ejecuta.php',
+                type:  'post', 
+                success:  function (response) {
+                        $("#resultado").html(response);
+                }
+        });      
+};  
 
 function verInfo(objeto) {//// escribe la sql seleccionada en el editor
     var textoCompleto = $(objeto).children('span').text(); 
@@ -282,8 +326,24 @@ function favoritos(accion){
                 url:   'ejecuta.php',
                 type:  'post', 
                 success:  function (response) {
-                        $("#capaFavoritos").html('<span id="addFav" onClick="guardaFavorito();" class="sentenciaFav">+ A&ntilde;adir sentencia actual a Favoritos</span><br />'+response);
+                        $("#capaFavoritos").html('<div class="botonCerrar" onClick="cerrar(this);"></div><span id="addFav" onClick="guardaFavorito();">+ A&ntilde;adir sentencia actual a Favoritos</span><br />'+response);
                         $("#capaFavoritos").css("display","block");
                 }
         });
-}                                   
+}  
+
+
+function accesosDirectos(){    
+        var parametros = {
+                "accion" : "adirectos"
+        };
+        $.ajax({
+                data:  parametros,
+                url:   'ejecuta.php',
+                type:  'post', 
+                success:  function (response) {
+                        $("#capaAccesosDirectos").html('<div class="botonCerrar" onClick="cerrar(this);"></div><h4>Accesos Directos:</h4><span id="addAD" onClick="guardaAD();">+ A&ntilde;adir nuevo acceso directo</span><br />'+response);
+                        $("#capaAccesosDirectos").css("display","block");
+                }
+        });
+}           

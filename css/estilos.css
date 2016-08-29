@@ -98,9 +98,34 @@ select {
         margin-top: 10px; 
         max-height:80%;
         max-width: 60%;  
-        overflow-y:scroll;
+        min-width: 25%;  
+        overflow-y:auto;
         z-index:9999;
         box-shadow: 3px 3px 5px grey;
+    }
+    
+    #capaAccesosDirectos { 
+        display: none;
+        position:absolute;
+        top:25%;                       
+        left:40%;                       
+        background-color: #dce6ee;    
+        border: 2px solid #435967;
+        border-radius: 3px;      
+        padding: 5px 10px; 
+        margin-top: 10px; 
+        max-width: 50%;      
+        z-index:9999;
+        box-shadow: 3px 3px 5px grey;
+    }
+    
+    .loading {
+        display:block;
+        margin:5% auto;
+        width:64px;
+        height:52px;
+        background-image: url('../img/loading.gif');
+        background-repeat: no-repeat; 
     }
     
     #sinlimite {  
@@ -143,9 +168,22 @@ select {
         word-wrap: break-word; 
     }
     
-    .sentenciaFav {cursor:pointer;display:inline-block;font-weight: bold;}
-    .sentenciaFav:hover {color: #98bad7;} 
-    #addFav {cursor:pointer;font-weight: normal;font-style: italic;}
+    .sentenciaAnadir {cursor:pointer;display:inline-block;font-weight: bold;}  
+    #addFav, #addAD {cursor:pointer;font-weight: normal;font-style: italic;} 
+    .sentenciaAnadir:hover, #addFav:hover, #addAD:hover {color: #98bad7;} 
+       
+    .botonCerrar {     
+        display:inline-block;
+        position:relative;  
+        float:right;
+        top:5%;      
+        width:18px;
+        height:18px;
+        background-size: 18px;
+        background-image: url('../img/close.png');
+        background-repeat: no-repeat; 
+        cursor:pointer;
+    }   
        
     .query {display:none;}   
     
@@ -161,14 +199,16 @@ select {
         padding: 6px 15px; 
     }  
     
-    #idagencia {
+    .idadirecto {
         display:inline;
         width:40px;
         height:20px;
         background-color:#f8fafb;
         border-radius: 3px;
-    }                         
+    }   
     
+    .imgButton {cursor:pointer;}  
+    .null {color:#888;font-style:italic;}
     .peq {font-size:.9em;}           
     
     input[type=text]#campo {
@@ -198,6 +238,8 @@ select {
        display: inline;
        cursor:pointer;
     }  
+    
+
     
 table {
   border: 0;

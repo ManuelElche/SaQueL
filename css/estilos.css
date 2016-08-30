@@ -126,6 +126,7 @@ select {
         height:52px;
         background-image: url('../img/loading.gif');
         background-repeat: no-repeat; 
+        opacity: 0.6;
     }
     
     #sinlimite {  
@@ -218,9 +219,12 @@ select {
     background-size: 22px 22px;
     background-repeat: no-repeat;
     padding-left: 35px;
-    margin-bottom: 0;
-    
-}        
+    margin-bottom:4px;
+} 
+       
+select {
+    margin:0px auto 8px;
+}
 
     .listcampo {
         font-weight: bold;
@@ -228,7 +232,7 @@ select {
     }       
     
     .escribeTexto {
-        margin: 9px 0 0 0;
+        margin: 0;
         width: 60%;
         padding-left: 20%;
         padding-top: 25%;

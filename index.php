@@ -50,11 +50,11 @@ include_once("funciones.php");
            <input type="button" class="btn btn-info escribeTexto" id="escribeTexto" value=">">
         </div>    
                                   
-          <input type="text" id="campo" class="form-control" style="margin-bottom:8px;" placeholder="Buscar campos...">
+          <input type="text" id="campo" class="form-control" autocomplete="off" placeholder="Buscar campos...">
           <div id="buscacampos"></div> 
           <div id="accesosDirectos" class="peq" style="font-size: .8em;">
-            <span class="peq">Accesos Directos:</span>
-            <img class="imgButton" id="botonADirectos" src="img/config.png" alt="Administrar Accesos directos" style="width:12px;">
+            <span>Accesos Directos:</span>
+            <img class="imgButton" id="botonADirectos" src="img/config.png" title="Administrar Accesos directos" style="width:12px;">
             <br />      
                               
                 <?php

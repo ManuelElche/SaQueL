@@ -172,7 +172,12 @@ select {
     .sentenciaAnadir {cursor:pointer;display:inline-block;font-weight: bold;}  
     #addFav, #addAD {cursor:pointer;font-weight: normal;font-style: italic;} 
     .sentenciaAnadir:hover, #addFav:hover, #addAD:hover {color: #98bad7;} 
-       
+    .separador {
+        margin:10px auto 5px;
+        height:3px;
+        border:0;
+        background-color:#0B243B;
+    }   
     .botonCerrar {     
         display:inline-block;
         position:relative;  

@@ -54,12 +54,18 @@ switch ($_POST['accion']) {
     
     case "favoritos" :
      mysqli_select_db($link,"gesquery");
-     $listado = mysqli_query($link,'SELECT titulo, query, id FROM gesquery.favoritos WHERE user="'.$_SESSION["user"].'" AND tipo="1" ORDER BY titulo;'); 
+     $listado = mysqli_query($link,'SELECT titulo, query, id, user FROM gesquery.favoritos WHERE (user="'.$_SESSION["user"].'" OR user="0") AND tipo="1" ORDER BY titulo;'); 
 
     while ($lista=mysqli_fetch_array($listado))
-        {$campos.= '<div id="fav'.$lista[2].'"><span onClick="escribeFav(this);" class="sentenciaAnadir">&nbsp;&nbsp;&raquo; '.utf8_encode($lista[0]).'<span class="query">'.utf8_encode($lista[1]).'</span></span> <div class="delete" onClick="borrarFavorito('.$lista[2].');" title="Eliminar"></div></div>';}
-                   
-    echo $campos;  
+        {  
+            if ($lista['user']==0)
+                {$favoritosGlobales.= '<div id="fav'.$lista[2].'"><span onClick="escribeFav(this);" class="sentenciaAnadir">&nbsp;&nbsp;&raquo; '.utf8_encode($lista[0]).'<span class="query">'.utf8_encode($lista[1]).'</span></span></div>';}
+                else
+                {$favoritos.= '<div id="fav'.$lista[2].'"><span onClick="escribeFav(this);" class="sentenciaAnadir">&nbsp;&nbsp;&raquo; '.utf8_encode($lista[0]).'<span class="query">'.utf8_encode($lista[1]).'</span></span> <div class="delete" onClick="borrarFavorito('.$lista[2].');" title="Eliminar"></div></div>';}
+        }
+                 
+    if ($favoritosGlobales!="") {$globales='<hr class="separador" />Globales:<br />'.$favoritosGlobales.'';}
+    echo $favoritos.$globales;  
     mysqli_free_result($listado);
     break; 
     

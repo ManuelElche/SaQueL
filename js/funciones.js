@@ -243,7 +243,8 @@ if (window.esta==0)
                 success:  function (response) {
                         $("#resultado").html(response);
                 }
-        });         
+        });
+    document.title = bdatos+' - SaQueL';         
 }   
 
 function limpia(query) {  

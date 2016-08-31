@@ -28,6 +28,12 @@ $(document).ready(function() {
 $("#campo").keyup(function(event){
         var listaCampos="";
         var textbusca=$('#campo').val().trim();
+        textbusca=textbusca.replace(/</gi, '');   
+        textbusca=textbusca.replace(/>/gi, '');   
+        textbusca=textbusca.replace(/\//gi, '');   
+        textbusca=textbusca.replace(/\\/gi, '');   
+        textbusca=textbusca.replace(/\*/gi, '');   
+        textbusca=textbusca.replace(/\?/gi, '');   
         
         if (textbusca=="") {$("#buscacampos").css("display","none");return false;}
      
@@ -36,14 +42,18 @@ $("#campo").keyup(function(event){
   var campo="."+nombreCampo;
     
     if (campo.toLowerCase().indexOf(textbusca.toLowerCase())>0) {
-        var listaCampos=listaCampos+' - <a class="listcampo">'+nombreCampo+'</a> [<em class="peq">'+camposTabla[nombreCampo]+'</em>]<br />';
+        if (tipo=="tablas")
+            {var listaCampos=listaCampos+' - <a class="listtabla">'+nombreCampo+'</a><br />';}
+            else
+            {var listaCampos=listaCampos+' - <a class="listcampo">'+nombreCampo+'</a> [<em class="peq">'+camposTabla[nombreCampo]+'</em>]<br />';}
     }
   } 
 
-if (listaCampos=="") {listaCampos='<span class="peq">No hay campos con &quot;<b>'+textbusca+'</b>&quot;</span>';}  
-$("#buscacampos").html(listaCampos);
+if (listaCampos=="") {listaCampos='<span class="peq">No hay '+tipo+' con &quot;<b>'+textbusca+'</b>&quot;</span>';}  
+$("#buscacampos").html(tituloTabla+listaCampos);
 $("#buscacampos").css("display","inline-block");
 $(".listcampo").mousedown(function() {editor.insert('`'+$(this).html()+'`');});   
+$(".listtabla").mousedown(function() {$("#tablas").val($(this).html());$("#campo").val("");});  
         });      
                        
                                   
@@ -51,16 +61,16 @@ function estructurar() {
     
     var consulta = editor.getValue(); 
     consulta=consulta.replace(/select /gi, 'SELECT\r\n\t');                                                              
-    consulta=consulta.replace(/ from/gi, '\r\n\tFROM');                                                              
-    consulta=consulta.replace(/ inner/gi, '\r\n\tINNER');                                                              
-    consulta=consulta.replace(/ left/gi, '\r\n\tLEFT');                                                              
-    consulta=consulta.replace(/ right/gi, '\r\n\tRIGHT');                                                              
-    consulta=consulta.replace(/ where/gi, '\r\n\tWHERE');                                                              
+    consulta=consulta.replace(/ from/gi, '\r\nFROM\r\n\t');                                                              
+    consulta=consulta.replace(/ inner join/gi, '\r\nINNER JOIN\r\n\t');
+    consulta=consulta.replace(/ left join/gi, '\r\nLEFT JOIN\r\n\t');                                                              
+    consulta=consulta.replace(/ right join/gi, '\r\nRIGHT JOIN\r\n\t');                                                              
+    consulta=consulta.replace(/ where/gi, '\r\nWHERE\r\n\t');                                                              
     consulta=consulta.replace(/ set/gi, '\r\n\t\tSET');                                                              
     consulta=consulta.replace(/ on/gi, '\r\n\t\tON');
-    consulta=consulta.replace(/ group/gi, '\r\n\tGROUP');
-    consulta=consulta.replace(/ order/gi, '\r\n\tORDER');
-    consulta=consulta.replace(/ limit/gi, '\r\n\tLIMIT');
+    consulta=consulta.replace(/ group/gi, '\r\nGROUP');
+    consulta=consulta.replace(/ order/gi, '\r\nORDER');
+    consulta=consulta.replace(/ limit/gi, '\r\nLIMIT');
     consulta=consulta.replace(/ offset/gi, '\r\n\tOFFSET');      
     consulta=consulta.replace(/, /gi, ',\r\n\t');      
     editor.setValue(consulta); 
@@ -114,9 +124,23 @@ $("#botonLanzar").click(lanzar);
 $("#botonEstructurar").click(estructurar);
 $("#botonHistorico").click(historico);                             
 $("#bds").change(function() {use($('#bds').val());exit();});           
-$("#botonBorrar").click(function() {editor.setValue("");});
+$("#botonBorrar").click(function() {editor.setValue("");});   
 $("#campo").blur(function() {$("#buscacampos").css("display","none");});   
        
+
+$("#botonCopiar").click(function() { 
+    if ($("#columnas").val()=="")
+    {alert ("No hay columnas que copiar!");}
+    else
+    {
+        var aux = document.createElement("input");                          
+        aux.setAttribute("value", $("#columnas").val());
+        document.body.appendChild(aux);
+        aux.select();
+        document.execCommand("copy");
+        document.body.removeChild(aux);      
+    }
+});
 
 $("#botonFavoritos").click(function() { 
     if ($('#capaFavoritos').css('display')=="block")
@@ -168,8 +192,10 @@ $("#campo").focus(function() { //// crea la variable campos con todo
  if ($('#tablas').val()=="")
     {alert ("Primero debes seleccionar una tabla");}
     else
-    {   var parametros = {
+    { if ($('#tablas').val()=="0") {var tipo="tablas";} else {var tipo="campos";}
+       var parametros = {
                 "accion" : "campos",  
+                "sacar" : tipo,  
                 "bd" : $('#bds').val(),
                 "tabla" : $('#tablas').val(),
         };

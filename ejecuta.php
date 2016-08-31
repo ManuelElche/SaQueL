@@ -4,14 +4,15 @@ include_once("cxn.php");
 include_once("funciones.php");   
 
 ini_set("display_errors", 1);   
-$limitePorDefecto=10;
+$limitePorDefecto=100;
   
 switch ($_POST['accion']) {             
     
     case "tablas" :
     
      $lista_tablas = mysqli_query($link,'SHOW TABLES FROM '.$_POST["bd"].';'); 
-     $tablas.='<select id="tablas" class="form-control">';
+     $tablas.='<select id="tablas" class="form-control">
+                <option value="0">Selecciona tabla</option>';
     while ($tabla=mysqli_fetch_array($lista_tablas))
         {$tablas.= '    <option value="'.$tabla[0].'">'.$tabla[0].'</option>';}
     $tablas.='</select>';    
@@ -31,12 +32,20 @@ switch ($_POST['accion']) {
     
     case "campos" :
      mysqli_select_db($link,$_POST["bd"]);
-     $listado = mysqli_query($link,'SHOW COLUMNS FROM '.$_POST["tabla"].';'); 
+     if ($_POST["sacar"]=="tablas")
+        {$listado = mysqli_query($link,'SHOW TABLES FROM '.$_POST["bd"].';');$titulo='<b>TABLAS ('.$_POST["bd"].'):</b><br />';}
+        else
+        {$listado = mysqli_query($link,'SHOW COLUMNS FROM '.$_POST["tabla"].';');$titulo='<b>CAMPOS:</b><br />';}
+     
 
     while ($lista=mysqli_fetch_array($listado))
         {$campos.= '"'.$lista[0].'":"'.$lista[1].'",';}
                    
-    echo '<script>var camposTabla = {'.$campos.'};</script>';  
+    echo '<script>
+            var camposTabla = {'.$campos.'};
+            var tituloTabla = "'.$titulo.'";
+            var tipo = "'.$_POST["sacar"].'";
+        </script>';  
     mysqli_free_result($link);
     break;
     
@@ -240,7 +249,7 @@ else
     mysqli_select_db($link,$_POST["bd"]);
     if (tipoSQL($sentencia)=="1") $sentencia=$_POST["sql"]." ".$limit;
 
-    echo "<p>SENTENCIA (tipo ".tipoSQL($sentencia)."): ".$sentencia."</p>";
+    //echo "<p>SENTENCIA (tipo ".tipoSQL($sentencia)."): ".$sentencia."</p>";
     $qry=mysqli_query($link,$sentencia);
     
     if (!mysqli_error($link) && tipoSQL($sentencia)==1) {  
@@ -253,6 +262,7 @@ else
     foreach ($columnas as $valor) {
         if (substr_count($sentencia,'.')>1) {$mostrarTabla="<br /><span>(".utf8_encode($valor->table).")</span>";}
         echo "<th>".utf8_encode($valor->name).$mostrarTabla."</th>";
+        $cols.=utf8_encode($valor->name).", ";
     }   //// genera la cabecera 
                             
     echo "  </tr>
@@ -296,13 +306,15 @@ else
         ejecutaqry($link,$sentencia,$numresultados);        
 }         
   
-        if ($numresultados<0) {$numresultados="0";}            
+        if ($numresultados<0) {$numresultados="0";}
+        if ($numresultados=="0") {$cols="";}
     echo $msj.$msj2.$msj3.$msj4.'
         </tbody>
     </table>
     
     <script>
         $("#total").html("Total registros: '.$numresultados.'");
+        $("#columnas").val("'.$cols.'");
     </script>';   
                                                                 
     break;
@@ -316,7 +328,7 @@ else
     
     case "historico" :
     
-     $qry = mysqli_query($link,'SELECT * FROM gesquery.sentencias WHERE user="'.$_SESSION["user"].'" ORDER BY id DESC;'); 
+     $qry = mysqli_query($link,'SELECT u.nombre, s.* FROM gesquery.sentencias AS s INNER JOIN inmo1.users AS u ON (s.user=u.id) WHERE user="'.$_SESSION["user"].'" ORDER BY id DESC;'); 
      $tablafinal.='<table id="historico">
         <tr>
             <th>Usuario</th>
@@ -345,7 +357,7 @@ else
           
             $tablafinal.= '
         <tr '.$estilo.'>
-            <td style="width:10%;">'.$row["user"].'</td>
+            <td style="width:10%;">'.$row["nombre"].'</td>
             <td style="font-size:.7em;">'.$row["query"].'</td>
             <td style="width:13%;">'.$row["fecha"].'</td>
             <td style="width:16%;">'.$resultado.'</td>
@@ -353,7 +365,7 @@ else
         ';}
     $tablafinal.='</table>';    
     echo $tablafinal;  
-    mysqli_free_result($link);
+    mysqli_free_result($qry);
     break;
     
     

@@ -1,6 +1,7 @@
 <?php               
 session_start();             
 include_once("cxn.php"); 
+$_SESSION["nombre"]="Manuel";
 $_SESSION["user"]="6";    
 $_SESSION["nivelPermisos"]="2"; 
 
@@ -12,11 +13,12 @@ $useInmo="1"; $useVolcado="1"; /// Los accesos directos inmo[0000] y  volcado[00
 /////////////***************************************//////////////
 /////////////    0    BLOQUEADO                     //////////////
 /////////////    1    SELECT                        //////////////
-/////////////    2    INSERT                        //////////////
+/////////////    2    INSERT INTO                   //////////////
 /////////////    3    UPDATE                        //////////////
 /////////////    4    DELETE                        //////////////
-/////////////    5    EMPTY, DROP, TRUNCATE...      //////////////
-/////////////    6    MYSQLDUMP                     //////////////
+/////////////    5    CREATE TABLE, ALTER TABLE     //////////////
+/////////////    6    DROP, TRUNCATE...             //////////////
+/////////////    7    MYSQLDUMP                     //////////////
 //////////////////////////////////////////////////////////////////
                            
 include_once("funciones.php"); 
@@ -33,7 +35,7 @@ include_once("funciones.php");
   <script src="js/funciones.js"></script>
 </head>
 <body>                   
-<h3>Inmovilla SQL</h3>         
+<h3>Inmovilla SQL :: <strong><?php echo $_SESSION["nombre"]; ?></strong></h3>         
 <div id="formulario" class="form">       
 
 
@@ -50,7 +52,7 @@ include_once("funciones.php");
            <input type="button" class="btn btn-info escribeTexto" id="escribeTexto" value=">">
         </div>    
                                   
-          <input type="text" id="campo" class="form-control" autocomplete="off" placeholder="Buscar campos...">
+          <input type="text" id="campo" class="form-control" autocomplete="off" placeholder="Buscar tablas/campos...">
           <div id="buscacampos"></div> 
           <div id="accesosDirectos" class="peq" style="font-size: .8em;">
             <span>Accesos Directos:</span>
@@ -74,6 +76,7 @@ include_once("funciones.php");
         <input type="button" class="btn btn-sm btn-warning" id="botonFavoritos" value="Favoritos">  
         <input type="button" class="btn btn-sm btn-default" id="botonNew" value="Nueva ventana">  
         <input type="hidden" id="v" value="<?php if ($_GET['v']=="") {echo "1";} else {echo $_GET['v'];};?>">  
+        <input type="hidden" id="columnas" value="">  
     </div>                                                                                              
         
         <div id="capaFavoritos"></div>
@@ -84,6 +87,7 @@ include_once("funciones.php");
     <div id="editor"></div> 
 </div>
 
+<div id="botonCopiar" title="Copiar nombres de columnas al portapapeles"><span></span></div>
 <div id="resultado"></div> 
 <div id="total">Total registros: 0</div>  
 

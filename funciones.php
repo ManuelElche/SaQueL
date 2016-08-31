@@ -29,16 +29,16 @@ function tipoSQL($qry) {
     $palabras=explode(" ",$qry);
 
     switch (strtolower($palabras[0])) {
-    case "select" : case "show" : case "describe" : case "desc" :                   $tiposql="1"; $gruposql="1";    break;
-    case "insert" :                                                                 $tiposql="2"; $gruposql="2";    break;
-    case "update" :                                                                 $tiposql="3"; $gruposql="2";    break;
-    case "delete" :                                                                 $tiposql="4"; $gruposql="2";    break;
-    case "empty" : case "alter" : case "truncate" : case "drop" : case "kill" :
-    case "create" : case "optimize" : case "grant" : case "revoke" :
-    case "flush" : case "lock" : case "unlock" : case "explain" : case "set" :      $tiposql="5"; $gruposql="8";    break;
-    case "mysqldump" : case "mysql" :                                               $tiposql="6"; $gruposql="9";    break; 
-    
-    default : die($noPuedes);
+        case "select" : case "show" : case "describe" : case "desc" :           $tiposql="1";    break;
+        case "insert" :                                                         $tiposql="2";    break;
+        case "update" :                                                         $tiposql="3";    break;
+        case "delete" :                                                         $tiposql="4";    break;
+        case "alter" : case "create" : case "optimize" :                        $tiposql="5";    break;
+        case "empty" : case "truncate" : case "drop" : case "kill" :
+        case "grant" : case "revoke" : case "lock" : case "unlock" :
+        case "explain" : case "set" : case "flush" :                            $tiposql="6";    break;
+        case "mysqldump" : case "mysql" :                                       $tiposql="7";    break;
+        default : die($noPuedes);
     }
 return $tiposql;
 }
@@ -122,8 +122,10 @@ function mensajePermisos($tipo) {
     case 2 : $mensaje="no puedes insertar informaci&oacute;n en esta base de datos..."; break; 
     case 3 : $mensaje="no puedes modificar la informaci&oacute;n contenida en ella..."; break; 
     case 4 : $mensaje="no puedes borrar la informaci&oacute;n contenida en ella..."; break; 
-    case 5 : $mensaje="no puedes eliminar o vaciar esta base de datos..."; break; 
-    case 6 : $mensaje="no puedes exportar su informaci&oacute;n..."; break;
+    case 5 : $mensaje="no puedes alterar o crear la base de datos..."; break; 
+    case 6 : $mensaje="no puedes eliminar o vaciar esta base de datos..."; break; 
+    case 7 : $mensaje="no puedes exportar su informaci&oacute;n..."; break;
+    default : $mensaje="desconocido..."; break;
     }
     die('<div class="alert alert-danger"><b>ERROR POR PERMISOS DE LA BASE DE DATOS!</b><br/> - Debido a los permisos de la base de datos, '.$mensaje.'</div>');
 }
